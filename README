@@ -1,0 +1,7 @@
+xamldroid is an attempt to create XAML-powered Android View wrapper.
+
+Actually this package contains a source generator for Mono.Android.Xaml.dll.
+
+To build Mono.Android.Xaml.dll, copy Mono.Android.dll from MonoDroid
+installation to this directory and then run make.
+
