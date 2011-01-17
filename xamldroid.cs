@@ -16,7 +16,12 @@ namespace Android.Views.Xaml
 			CurrentHandle = handle;
 		}
 
-		public XamlView (Context context)
+        public XamlView ()
+            : base (CurrentContext)
+        {
+        }
+
+        public XamlView (Context context)
 			: base (context)
 		{
 			CurrentContext = context;
@@ -49,9 +54,19 @@ namespace Android.Views.Xaml
 			AddView ((Android.Views.View) (Android.Views.Xaml.View) XamlServices.Load (reader));
 		}
 
+        public void AddView (View view)
+        {
+            AddView ((Android.Views.View)view);
+        }
+
 		protected override void OnLayout (bool changed, int l, int t, int r, int b)
 		{
 			view.Layout (l, t, r, b);
 		}
+
+        protected override void OnDraw (Graphics.Canvas canvas)
+        {
+            view.Draw (canvas);
+        }
 	}
 }
