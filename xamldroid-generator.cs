@@ -20,6 +20,7 @@ namespace Mono.Android.Xaml.Generator
 		internal static List<Type> targets = new List<Type> ();
 		internal static List<Type> views = new List<Type> ();
 		internal static List<Type> anims = new List<Type> ();
+		internal static List<Type> layparams = new List<Type> ();
 
 		public void Run (string [] args)
 		{
@@ -33,6 +34,7 @@ namespace Mono.Android.Xaml.Generator
 		{
 			var view = android_ass.GetType ("Android.Views.View");
 			var animation = android_ass.GetType ("Android.Views.Animations.Animation");
+			var layoutparams = android_ass.GetType ("Android.Views.ViewGroup+LayoutParams");
 			targets.Add (view);
 			var d = new Dictionary<Type,bool> ();
 			foreach (var ass in asses)
@@ -47,8 +49,17 @@ namespace Mono.Android.Xaml.Generator
 				foreach (var t in ass.GetTypes ())
 					CheckIfTypeIsTarget (animation, d, t);
 			anims.AddRange (from e in d where e.Value select e.Key);
-
 			targets.AddRange (anims);
+			d.Clear ();
+
+			layparams.Add (layoutparams);
+			foreach (var ass in asses)
+				foreach (var t in ass.GetTypes ())
+					CheckIfTypeIsTarget (layoutparams, d, t);
+			layparams.AddRange (from e in d where e.Value select e.Key);
+			targets.AddRange (layparams);
+			d.Clear ();
+
 
 			GenerateCode ();
 		}
@@ -286,7 +297,7 @@ namespace Android.Views.Xaml
 			if (type.IsGenericType)
 				return (Driver.targets.Contains (type) ? "" : type.Namespace + ".") + (type.DeclaringType != null ? type.DeclaringType.Name + "." : null) + type.Name.Substring (0, type.Name.IndexOf ('`')) + "<" + String.Join (",", (from t in type.GetGenericArguments () select t.CSSwitchName ()).ToArray ()) + ">";
 			else
-				return ((Driver.targets.Contains (type) ? "" : type.Namespace + ".") + (type.DeclaringType != null ? type.DeclaringType.Name + "." : null) + type.Name).Replace ('+', '.');
+				return ((Driver.targets.Contains (type) ? "" : type.Namespace + ".") + (!Driver.targets.Contains (type) && type.DeclaringType != null ? type.DeclaringType.Name + "." : null) + type.Name);//.Replace ('+', '.');
 		}
 
 		public static string CSFullName (this Type type)
