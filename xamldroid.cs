@@ -28,19 +28,21 @@ namespace Android.Views.Xaml
 
 		static internal Dictionary<object,object> store = new Dictionary<object,object> ();
 
-        public static void Register (object key, object value)
-        {
-            store.Add (key, value);
-        }
-        public static void Unregister (object key)
-        {
-            store.Remove (key);
-        }
-        public static object GetRegisteredItem (object key)
-        {
-            object ret;
-            return store.TryGetValue (key, out ret) ? ret : null;
-        }
+		public static void Register (object key, object value)
+		{
+			store.Add (key, value);
+		}
+		
+		public static void Unregister (object key)
+		{
+			store.Remove (key);
+		}
+		
+		public static object GetRegisteredItem (object key)
+		{
+			object ret;
+			return store.TryGetValue (key, out ret) ? ret : null;
+		}
 
 		public XamlView ()
 			: base (CurrentContext)
@@ -65,34 +67,38 @@ namespace Android.Views.Xaml
 			CurrentContext = context;
 		}
 
-		public XamlView (Android.Views.View view)
+		public XamlView (View view)
 			: base (view.Context)
 		{
 			CurrentContext = view.Context;
 			this.view = view;
 		}
 
-		Android.Views.View view;
+		View view;
 
 		public void LoadXaml (XamlReader reader)
 		{
 			RemoveAllViews ();
-			AddView ((Android.Views.View) (Android.Views.Xaml.View) XamlServices.Load (reader));
+			view = (Android.Views.Xaml.View)XamlServices.Load(reader);
+			AddView ((Android.Views.View) view);
 		}
 
 		public void AddView (View view)
 		{
-			AddView ((Android.Views.View)view);
+			this.view = view;
+			AddView ((Android.Views.View) view);
 		}
 
 		protected override void OnLayout (bool changed, int l, int t, int r, int b)
 		{
-			view.Layout (l, t, r, b);
+			if (view != null)
+    				((Android.Views.View) view).Layout (l, t, r, b);
 		}
 
-		protected override void OnDraw (Graphics.Canvas canvas)
+		protected override void OnDraw (Android.Graphics.Canvas canvas)
 		{
-		    view.Draw (canvas);
+			if (view != null)
+				((Android.Views.View) view).Draw (canvas);
 		}
 	}
 }

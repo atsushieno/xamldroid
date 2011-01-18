@@ -1,0 +1,16 @@
+This is a MonoDroid port of System.Xaml.dll in mono.
+
+The actual sources are *not* in this repository. Instead, this project file
+has references to mono/mcs/class/System.Xaml/*.cs (and MonoTODO.cs).
+So, to build this library, you need copy of mono sources.
+
+(You can manually edit csproj so that it points to the sources wherever
+you want them to be, but might be easier to just add System.Xaml/*/*.cs
+except for *.Permissions sources, which I didn't import.)
+
+Note that this library does *not* support serializing Android UI elements
+into XAML. Those classes don't have required default constructors.
+To support such serialization, you'll need custom System.Xaml enhancements.
+
+Atsushi Eno
+

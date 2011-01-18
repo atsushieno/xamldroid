@@ -34,10 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
-    <Reference Include="MonoDroid.Xaml, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\MonoDroid.Xaml.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -66,6 +62,10 @@
     <ProjectReference Include="..\Mono.Android.Xaml\Mono.Android.Xaml.csproj">
       <Project>{0A47B9C9-2F2A-4D37-8D91-6195CCA0051A}</Project>
       <Name>Mono.Android.Xaml</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonoDroid.Xaml\MonoDroid.Xaml.csproj">
+      <Project>{5002C3DC-012D-44FF-B0BA-259BFE082566}</Project>
+      <Name>MonoDroid.Xaml</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

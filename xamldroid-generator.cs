@@ -103,17 +103,17 @@ namespace Android.Views.Xaml
 				fs.WriteLine (@"
 	internal static class Extensions
 	{
-		public static T GetWrappedView<T> (object impl) where T : class
+		public static T GetWrappedItem<T> (object impl) where T : class
 		{
 			if (impl == null)
 				return null;
 			object w = XamlView.GetRegisteredItem (impl);
 			if (w == null)
-				w = CreateWrappedView (impl);
+				w = CreateWrappedItem (impl);
 			return (T) w;
 		}
 		
-		static object CreateWrappedView (object impl)
+		static object CreateWrappedItem (object impl)
 		{");
 
 				foreach (var view in targets)
@@ -195,7 +195,7 @@ namespace Android.Views.Xaml
 
 			string templateInit = @"
 			if (impl.{0} != null)
-				{0} = Extensions.GetWrappedView<{1}> (impl.{0});";
+				{0} = Extensions.GetWrappedItem<{1}> (impl.{0});";
 			var isw = new StringWriter () { NewLine = "\n" };
 			foreach (var p in implprops)
 				if (!p.IsAbstract ())
@@ -236,9 +236,9 @@ namespace Android.Views.Xaml
 			var type = p.PropertyType;
 			if (type.IsGenericType && type.GetGenericArguments ().Any (t => targets.Contains (t)) || targets.Contains (type) && !type.IsEnum) {
 				if (type.IsGenericType && type.GetGenericTypeDefinition () == typeof (IList<>))
-					return String.Format ("(from x in {0} select ({1}) x).ToList ()", p.Name, type.GetGenericArguments () [0].CSName ());
+					return String.Format ("(from x in impl.{0} select Extensions.GetWrappedItem<{1}> (x)).ToList ()", p.Name, type.GetGenericArguments () [0].CSName ());
 				else if (type.IsArray)
-					return String.Format ("(from x in {0} select ({1}) x).ToArray ()", p.Name, type.CSName ().Substring (0, type.CSName ().LastIndexOf ('[')));
+					return String.Format ("(from x in impl.{0} select Extensions.GetWrappedItem<{1}> (x)).ToArray ()", p.Name, type.CSName ().Substring (0, type.CSName ().LastIndexOf ('[')));
 				else
 					return "(" + type.CSFullName () + ") " + p.Name;
 			}
