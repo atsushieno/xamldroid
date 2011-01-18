@@ -74,7 +74,7 @@ namespace Mono.Android.Xaml.Generator
 
 		void GenerateCode ()
 		{
-			output = new StringWriter ();
+			output = new StringWriter () { NewLine = "\n" };
 			foreach (var t in targets)
 				GenerateCode (t);
 
@@ -96,22 +96,31 @@ namespace Android.Views.Xaml
 {
 ";
 			using (var fs = File.CreateText ("xamldroid.generated.cs")) {
+				fs.NewLine = "\n";
 				fs.WriteLine (header.Replace ("{1}", String.Join ("\n", (from t in targets select String.Format ("using Impl{0} = {1};", t.CSName (), t.CSFullName ())).ToArray ())));
 				fs.WriteLine (output);
 
 				fs.WriteLine (@"
 	internal static class Extensions
 	{
-		public static T Wrap<T> (object impl) where T : class
+		public static T GetWrappedView<T> (object impl) where T : class
 		{
 			if (impl == null)
-				return null;");
+				return null;
+			object w = XamlView.GetRegisteredItem (impl);
+			if (w == null)
+				w = CreateWrappedView (impl);
+			return (T) w;
+		}
+		
+		static object CreateWrappedView (object impl)
+		{");
 
 				foreach (var view in targets)
 					if (!view.IsAbstract)
 						fs.WriteLine (@"
 			if (impl is {1})
-				return (T) (object) new {0} (({1}) impl);", view.CSName (), view.CSFullName ());
+				return new {0} (({1}) impl);", view.CSName (), view.CSFullName ());
 				fs.WriteLine (@"
 			throw new NotSupportedException (""not supported conversion"");
 		}");
@@ -138,7 +147,7 @@ namespace Android.Views.Xaml
 
 			output.WriteLine ("// generic ordinal type for " + type);
 			string template = @"
-	public {10}class {0} : {1} {2}
+	public {10}partial class {0} : {1} {2}
 	{{
 		{7} impl;
 
@@ -149,6 +158,7 @@ namespace Android.Views.Xaml
 		internal protected {8} ({7} impl) {6}
 		{{
 			this.impl = impl;
+			{11}
 			Initialize ();
 		}}
 
@@ -185,15 +195,15 @@ namespace Android.Views.Xaml
 
 			string templateInit = @"
 			if (impl.{0} != null)
-				{0} = Extensions.Wrap<{1}> (impl.{0});";
-			var isw = new StringWriter ();
+				{0} = Extensions.GetWrappedView<{1}> (impl.{0});";
+			var isw = new StringWriter () { NewLine = "\n" };
 			foreach (var p in implprops)
 				if (!p.IsAbstract ())
 					isw.WriteLine (templateInit, p.Name, p.PropertyType.CSName ());
 
 			string templateImplProp = @"
 		public {3}{0} {1} {{ get; {2}set; }}";
-			var dpsw = new StringWriter ();
+			var dpsw = new StringWriter () { NewLine = "\n" };
 			foreach (var p in implprops)
 				dpsw.WriteLine (templateImplProp, p.PropertyType.CSSwitchName (), p.Name, p.IsSetterPublic () ? null : "internal ", GetModifier (p));
 
@@ -204,7 +214,7 @@ namespace Android.Views.Xaml
 		}}";
 			string templateOrdProp2 = @"
 		public {3}{0} {1} {{ get; {5} }}";
-			var nsw = new StringWriter ();
+			var nsw = new StringWriter () { NewLine = "\n" };
 			foreach (var p in miscprops) {
 				var setter = String.Format ("set {{ impl.{0} = value; }}", p.Name);
 				nsw.WriteLine (p.IsAbstract () ? templateOrdProp2 : templateOrdProp1, p.PropertyType.CSSwitchName (), p.Name, p.IsSetterPublic () ? setter : null, GetModifier (p), GetValueExpression (p), p.IsSetterPublic () ? "set;" : null);
@@ -217,7 +227,8 @@ namespace Android.Views.Xaml
 			}
 
 			// FIXME: write custom attributes
-			output.WriteLine (template, type.CSName (), type.BaseType.CSSwitchName (), gconsts, isw, dpsw, nsw, targets.Contains (type.BaseType) ? " : base (impl)" : null, type.CSFullName (), type.NonGenericName (), publicConstructor, type.IsAbstract ? "abstract " : null);
+			bool callBase = targets.Contains (type.BaseType);
+			output.WriteLine (template, type.CSName (), type.BaseType.CSSwitchName (), gconsts, isw, dpsw, nsw, callBase ? " : base (impl)" : null, type.CSFullName (), type.NonGenericName (), publicConstructor, type.IsAbstract ? "abstract " : null, callBase ? null : "XamlView.Register (impl, this);");
 		}
 
 		string GetValueExpression (PropertyInfo p)

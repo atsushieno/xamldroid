@@ -21,9 +21,9 @@ namespace XamlDroidSample
             {
                 XamlView.CurrentContext = this.ApplicationContext;
                 var v = new XamlView();
-                Android.Util.Log.D("XamlDroid", System.Xaml.XamlServices.Save(v));
                 Android.Util.Log.D("XamlDroid", "ZAPZAPZAPZAPZAP");
                 var button = new Button () { Text = "XamlDroid sample" };
+                Android.Util.Log.D("XamlDroid", System.Xaml.XamlServices.Save(button));
                 Android.Util.Log.D("XamlDroid", "ZAPZAPZAPZAPZAP2");
                 v.AddView(button);
                 SetContentView(v);
