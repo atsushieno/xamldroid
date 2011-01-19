@@ -9,3 +9,8 @@ installation to this directory and then run make.
 
 MonoDroid.Xaml.dll comes from another project (which depends on mono/mcs):
 https://github.com/atsushieno/MonoDroid.Xaml
+A copy of the project files are in this repository too.
+See MonoDroid.Xaml/README for the details.
+
+The sample application saves XAML and loads it back, but still needs some
+work to set it as a View.

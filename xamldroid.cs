@@ -15,7 +15,7 @@ namespace Android.Views.Xaml
 		}
 	}
 
-	public class XamlView : Android.Views.ViewGroup
+	public class XamlView : Android.Widget.LinearLayout
 	{
 		public static IntPtr CurrentHandle { get; set; }
 		public static Context CurrentContext { get; set; }
@@ -57,12 +57,6 @@ namespace Android.Views.Xaml
 
 		public XamlView (Context context, IAttributeSet attrs)
 			: base (context, attrs)
-		{
-			CurrentContext = context;
-		}
-
-		public XamlView (Context context, IAttributeSet attrs, Int32 defStyle)
-			: base (context, attrs, defStyle)
 		{
 			CurrentContext = context;
 		}

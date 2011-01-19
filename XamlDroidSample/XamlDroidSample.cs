@@ -23,17 +23,12 @@ namespace XamlDroidSample
             {
                 XamlView.CurrentContext = this.ApplicationContext;
                 var v = new XamlView();
-                Android.Util.Log.D("XamlDroid", "ZAPZAPZAPZAPZAP");
                 var button = new Button () { Text = "XamlDroid sample" };
-                Android.Util.Log.D("XamlDroid", "ZAPZAPZAPZAPZAP2");
                 v.AddView(button);
                 SetContentView(v);
-                //var xr = new XamlObjectReader (button);
-                //while (xr.Read ())
-                //    Android.Util.Log.D("XamlDroid", String.Format ("{0} {1} {2} {3}", xr.NodeType, xr.Type, xr.Member, xr.Value));
                 var xaml = XamlServices.Save(button);
                 Android.Util.Log.D("XamlDroid", xaml);
-                v.LoadXaml (new XamlXmlReader(new StringReader(xaml)));
+                v.LoadXaml (new XamlXmlReader(new StringReader(xaml.Replace ("<x:Reference>__ReferenceID0</x:Reference>", "")))); // ZAPZAPZAP!
             }
             catch (Exception ex)
             {
