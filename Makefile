@@ -9,17 +9,18 @@ SOURCES= xamldroid.cs xamldroid-generator.cs
 OTHERFILES= Makefile README
 DIST_DEPS = MonoDroid.Xaml.dll
 OUTCOME = Mono.Android.Xaml.dll
+MONO_ANDROID_DLL = $(MONO_ANDROID_PATH)/lib/mandroid/platforms/android-8/Mono.Android.dll
 
 all: $(OUTCOME)
 
 xamldroid-generator.exe: xamldroid-generator.cs
 	$(CSCOMPILE) $(CSCOMPILE_FLAGS) xamldroid-generator.cs
 
-xamldroid.generated.cs : xamldroid-generator.exe Mono.Android.dll
-	$(RUNTIME) $(RUNTIME_FLAGS) ./xamldroid-generator.exe Mono.Android.dll
+xamldroid.generated.cs : xamldroid-generator.exe $(Mono_Android_dll)
+	$(RUNTIME) $(RUNTIME_FLAGS) ./xamldroid-generator.exe $(MONO_ANDROID_DLL)
 
 Mono.Android.Xaml.dll : xamldroid.cs xamldroid.generated.cs
-	$(CSCOMPILE) $(CSCOMPILE_FLAGS) -debug -t:library -out:Mono.Android.Xaml.dll xamldroid.cs xamldroid.generated.cs -r:Mono.Android.dll -r:MonoDroid.Xaml.dll
+	$(CSCOMPILE) $(CSCOMPILE_FLAGS) -debug -t:library -out:Mono.Android.Xaml.dll xamldroid.cs xamldroid.generated.cs -r:$(MONO_ANDROID_DLL) -r:MonoDroid.Xaml.dll
 
 clean:
 	rm Mono.Android.Xaml.dll Mono.Android.Xaml.dll.mdb xamldroid.generated.cs xamldroid-generator.exe xamldroid-generator.exe.mdb
