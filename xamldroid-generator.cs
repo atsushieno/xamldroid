@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using IKVM.Reflection;
 using System.Text;
 using System.Xml;
+
+using Type = IKVM.Reflection.Type;
 
 namespace Mono.Android.Xaml.Generator
 {
@@ -21,10 +23,11 @@ namespace Mono.Android.Xaml.Generator
 		internal static List<Type> views = new List<Type> ();
 		internal static List<Type> anims = new List<Type> ();
 		internal static List<Type> layparams = new List<Type> ();
+		internal static Universe univ = new Universe ();
 
 		public void Run (string [] args)
 		{
-			asses = (from arg in args select Assembly.ReflectionOnlyLoadFrom (arg)).ToArray ();
+			asses = args.Select (arg => univ.LoadFile (arg)).ToArray ();
 			android_ass = asses.First (a => a.GetName ().Name == "Mono.Android");
 
 			CollectViews ();
@@ -196,7 +199,12 @@ namespace Android.Views.Xaml
 
 			var actx = android_ass.GetType ("Android.Content.Context");
 			var aaset = android_ass.GetType ("Android.Util.IAttributeSet");
-			string args = type.GetConstructor (new Type [] {actx}) != null ? "XamlView.CurrentContext" : type.GetConstructor (new Type [] {actx, aaset}) != null ? "XamlView.CurrentContext, null" : null;
+			// somehow GetConstructor() returns weird results, so this workarounds that.
+			string args =
+				type.GetConstructors ().Any (c => c.GetParameters ().Length == 1 && c.GetParameters () [0].ParameterType.FullName == actx.FullName) ? "XamlView.CurrentContext" :
+				type.GetConstructors ().Any (c => c.GetParameters ().Length == 2 && c.GetParameters () [0].ParameterType.FullName == actx.FullName && c.GetParameters () [1].ParameterType.FullName == aaset.FullName) ? "XamlView.CurrentContext, null" :
+				"";
+//if (type.Name == "SlidingDrawer") foreach (var ccc in type.GetConstructors ()) Console.WriteLine ("!!!! " + ccc + " / " +  type.GetConstructor (new Type [] {actx}).GetParameters ().Length);
 			string publicConstructor = type.IsAbstract ? String.Empty : String.Format (@"
 		public {0} ()
 			: this (new {1} ({2}))
@@ -246,7 +254,7 @@ namespace Android.Views.Xaml
 		{
 			var type = p.PropertyType;
 			if (type.IsGenericType && type.GetGenericArguments ().Any (t => targets.Contains (t)) || targets.Contains (type) && !type.IsEnum) {
-				if (type.IsGenericType && type.GetGenericTypeDefinition () == typeof (IList<>))
+				if (type.IsGenericType && type.GetGenericTypeDefinition () == univ.Import (typeof (IList<>)))
 					return String.Format ("(from x in impl.{0} select Extensions.GetWrappedItem<{1}> (x)).ToList ()", p.Name, type.GetGenericArguments () [0].CSName ());
 				else if (type.IsArray)
 					return String.Format ("(from x in impl.{0} select Extensions.GetWrappedItem<{1}> (x)).ToArray ()", p.Name, type.CSName ().Substring (0, type.CSName ().LastIndexOf ('[')));
@@ -276,13 +284,15 @@ namespace Android.Views.Xaml
 
 	static class Extensions
 	{
+		/*
+		static Universe univ = Driver.univ;
 		public static T GetCustomAttribute<T> (this ParameterInfo p)
 		{
-			foreach (var a in p.GetCustomAttributes (true))
-				if (a is T)
-					return (T) a;
+			foreach (var a in p.__GetCustomAttributes (univ.Import (typeof (T)), true))
+				return (T) a;
 			return default (T);
 		}
+		*/
 
 		public static bool IsSetterPublic (this PropertyInfo p)
 		{

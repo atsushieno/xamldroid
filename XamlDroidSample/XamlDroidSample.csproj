@@ -14,23 +14,27 @@
     <FileAlignment>512</FileAlignment>
     <AndroidApplication>true</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <TargetFrameworkVersion>v4.0.3</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>None</AndroidLinkMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -59,13 +63,13 @@
     <AndroidResource Include="Resources\drawable\icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mono.Android.Xaml\Mono.Android.Xaml.csproj">
-      <Project>{0A47B9C9-2F2A-4D37-8D91-6195CCA0051A}</Project>
-      <Name>Mono.Android.Xaml</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MonoDroid.Xaml\MonoDroid.Xaml.csproj">
       <Project>{5002C3DC-012D-44FF-B0BA-259BFE082566}</Project>
       <Name>MonoDroid.Xaml</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mono.Android.Xaml\Mono.Android.Xaml.csproj">
+      <Project>{0A47B9C9-2F2A-4D37-8D91-6195CCA0051A}</Project>
+      <Name>Mono.Android.Xaml</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

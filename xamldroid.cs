@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Android.Content;
+using Android.Runtime;
 using Android.Util;
 using System.Xaml;
 
@@ -8,7 +9,7 @@ namespace Android.Views.Xaml
 {
 	public partial class View : IDisposable
 	{
-		public override void Dispose ()
+		public void Dispose ()
 		{
 			XamlView.Unregister ((Android.Views.View) this);
 			base.Dispose ();
@@ -20,8 +21,8 @@ namespace Android.Views.Xaml
 		public static IntPtr CurrentHandle { get; set; }
 		public static Context CurrentContext { get; set; }
 
-		public XamlView (IntPtr handle)
-			: base (handle)
+		public XamlView (IntPtr handle, JniHandleOwnership ownership)
+			: base (handle, ownership)
 		{
 			CurrentHandle = handle;
 		}
